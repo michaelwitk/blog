@@ -58,7 +58,7 @@ export default function RootLayout({
                     <Footer />
                 </main>
             </body>
-            <Script src="https://scripts.simpleanalyticscdn.com/latest.js" />
+            <Script src="https://api.michaelwitk.com/latest.js" />
         </html>
     )
 }
