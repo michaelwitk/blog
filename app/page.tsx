@@ -7,13 +7,12 @@ export default function Page() {
                 My Blog
             </h1>
             <p className="mb-4">
-                {`Follow me on x`}{' '}
                 <a
                     href="https://x.com/michael_witk"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    @michael_witk
+                    Follow me on x @michael_witk
                 </a>
             </p>
             <div className="my-8">
