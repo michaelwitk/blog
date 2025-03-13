@@ -1,0 +1,201 @@
+---
+title: 'How I Host My Web Apps on a VPS: Node.js, Next.js, and More'
+publishedAt: '2025-03-13'
+summary: 'A quick guide to hosting Node.js and Next.js apps on a VPS, covering SSH setup, GitHub integration, Cloudflare security, Nginx configuration, and process management with PM2.'
+---
+
+# How I Host My Webapps: Node.js, Next.js on a VPS
+
+I recommend using [Hetzner](https://www.hetzner.com/) or [DigitalOcean](https://www.digitalocean.com/) for fast setup. This page is hosted on a $4/month VPS (4GB RAM, 2VCPU, 40GB DISK). After renting your VPS, you'll get an IP address to connect via SSH. If you don't have an SSH key on your local computer, follow these steps:
+
+1. Generate an SSH key on your local machine and copy it.
+2. Enter your SSH key when creating the server to enable passwordless login. If you don't know how, the next step will show you how, just on the rented VPS you just created, but you should do it on your own computer once too.
+
+## Connecting to Your VPS
+
+I'm using macOS. Open the Terminal app and connect to your server by replacing "IP" with the IP address you received from your server provider:
+
+```sh
+ssh root@IP
+```
+
+Once logged in, generate a new SSH key on your VPS:
+
+```sh
+ssh-keygen
+```
+
+Just press Enter for all the default options.
+
+Copy the public key using this command:
+
+```sh
+cat $HOME/.ssh/id_ed25519.pub
+```
+
+Paste it into your [GitHub SSH keys settings](https://github.com/settings/keys).
+
+![GitHub SSH key settings](/vps/sshkey.png)
+_GitHub SSH key settings_
+
+## Webhook recipient
+
+Copy my minimal webhook webserver repository onto your VPS:
+
+```sh
+git clone https://github.com/michaelwitk/webhook
+```
+
+Create a new GitHub repository [here](https://github.new) and then update the Git configuration on your VPS:
+
+```sh
+cd webhook
+rm -rf .git
+git init
+git add .
+```
+
+Now, follow the steps from GitHub to connect your repo to GitHub:
+
+![GitHub new repository](/vps/githubnew.png)
+_GitHub new repository creation page_
+
+![GitHub repository code block](/vps/githubnewcode.png)
+_GitHub new repository created page_
+
+Use the provided snippet to upload my code to your own GitHub account.
+
+## Setting Up Webhooks on GitHub
+
+After setting up the repository, go to the repository settings, then to "Webhooks". Enter your domain URL and set the content type to JSON. Write down a random secret that you'll later use in your `.env` file. You can reuse the same secret for future webhooks.
+
+![GitHub webhook creation page](/vps/webhook.png)
+_GitHub Webhook settings Page_
+
+## Using Cloudflare for Security
+
+It's recommended to use [Cloudflare](https://cloudflare.com) to protect your server's IP address from exposure. With Cloudflare, your server is shielded from direct traffic. Sign up for a free tier, purchase a domain on [Namecheap](https://namecheap.com), and enable free WHOIS privacy.
+
+![Namecheap DNS settings](/vps/namecheapns.png)
+_Namecheap Domain Settings Nameservers_
+
+## Configuring DNS on Cloudflare
+
+Add A records with @ and \* pointing to your server's IP. Ensure that the orange cloud is enabled.
+
+![Cloudflare DNS settings](/vps/cloudflare.png)
+_Cloudflare DNS Records Page_
+
+## SSL/TLS Encryption
+
+Set Cloudflare's SSL/TLS encryption mode to "Full (Strict)" for added security.
+
+![Cloudflare SSL settings](/vps/cloudflaressl.png)
+_Cloudflare SSL Settings Page (Full Strict)_
+
+## Setting Up Nginx on Your VPS
+
+Install Nginx and Certbot on your VPS:
+
+```sh
+sudo apt update
+sudo apt install nginx -y
+sudo systemctl enable nginx
+sudo systemctl start nginx
+sudo apt install certbot python3-certbot-nginx -y
+```
+
+For each domain or subdomain, create a configuration file under `/etc/nginx/sites-available/git.michaelwitk.com`. Here's an example for the webhook application:
+
+```sh
+server {
+    listen 80;
+    server_name git.michaelwitk.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Enable the configuration with the following commands:
+
+```sh
+EMAIL=mwit2023@gmail.com
+DOMAIN=git.michaelwitk.com
+sudo ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+sudo certbot --nginx --agree-tos --no-eff-email --non-interactive -m $EMAIL -d $DOMAIN
+```
+
+Don't forget to set up a cron job to renew your SSL certificates:
+
+```
+sudo crontab -e
+0 0,12 * * * certbot renew --quiet
+```
+
+## Installing Node.js
+
+Install Node.js using NVM (Node Version Manager):
+
+```sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
+```
+
+Restart your terminal to load NVM, then install your preferred Node.js version:
+
+```sh
+nvm i --lts
+# nvm i 22
+```
+
+## Setting Up PM2 for Process Management
+
+PM2 helps manage your applications and automatically restarts them if they crash or the server reboots:
+
+```sh
+npm i -g pm2@5.4
+pm2 install pm2-logrotate
+```
+
+## Cloning and Running Apps on the VPS
+
+For each app, clone it onto your VPS and start it using PM2. Remember to assign a unique port for each app:
+
+```sh
+cd $HOME
+git clone https://github.com/michaelwitk/webhook
+cd webhook
+# Create .env file with your secret from GitHub webhook settings
+echo SECRET=1234 > .env
+
+# Node.js app (single process)
+NAME=webhook
+pm2 start "PORT=3000 npm run start" --log-date-format "YYYY-MM-DD HH:mm:ss" --name $NAME
+
+# Next.js app (multi-process)
+NAME=blog
+PORT=3001 pm2 start ./node_modules/.bin/next -i 2 --log-date-format "YYYY-MM-DD HH:mm:ss" --name $NAME -- start
+
+pm2 save
+pm2 startup
+```
+
+## Monitoring Logs and App Stats
+
+Use the following commands to monitor logs and stats:
+
+```
+pm2 monit
+pm2 logs
+cat $HOME/.pm2/logs/webhook.log
+```
+
+or use vscode with ssh-remote extension to have a UI you're probably used to.
