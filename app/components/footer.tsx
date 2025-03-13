@@ -26,14 +26,14 @@ export default function Footer() {
                         target="_blank"
                         href="https://x.com/michael_witk"
                     >
-                        <ArrowIcon />
+                        {/* <ArrowIcon /> */}
                         <p className="ml-2 h-7">@michael_witk on X (Twitter)</p>
                     </a>
                 </li>
             </ul>
-            <p className="mt-8 text-neutral-600 dark:text-neutral-300">
+            {/* <p className="mt-8 text-neutral-600 dark:text-neutral-300">
                 © {new Date().getFullYear()}
-            </p>
+            </p> */}
         </footer>
     )
 }

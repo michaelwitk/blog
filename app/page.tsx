@@ -12,7 +12,7 @@ export default function Page() {
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    Follow me on x @michael_witk
+                    @michael_witk on X (Twitter)
                 </a>
             </p>
             <div className="my-8">
