@@ -2,7 +2,7 @@ import './global.css'
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
-import { Navbar } from './components/nav'
+// import { Navbar } from './components/nav'
 import Footer from './components/footer'
 import { baseUrl } from './sitemap'
 import Script from 'next/script'
@@ -10,15 +10,15 @@ import Script from 'next/script'
 export const metadata: Metadata = {
     metadataBase: new URL(baseUrl),
     title: {
-        default: 'Next.js Portfolio Starter',
-        template: '%s | Next.js Portfolio Starter',
+        default: '@michael_witk Blog',
+        template: '%s | @michael_witk Blog',
     },
-    description: 'This is my portfolio.',
+    description: '@michael_witk Blog',
     openGraph: {
-        title: 'My Portfolio',
-        description: 'This is my portfolio.',
+        title: '@michael_witk Blog',
+        description: '@michael_witk Blog',
         url: baseUrl,
-        siteName: 'My Portfolio',
+        siteName: 'Blog',
         locale: 'en_US',
         type: 'website',
     },
