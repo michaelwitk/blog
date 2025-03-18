@@ -67,35 +67,35 @@ Use the provided snippet to upload my code to your own GitHub account.
 
 ## Setting Up Webhooks on GitHub
 
-After setting up the repository, go to the repository settings, then to "Webhooks". Enter your domain URL and set the content type to JSON. Write down a random secret that you'll later use in your `.env` file. You can reuse the same secret for future webhooks.
+After setting up the repository, go to the repository settings, then to "Webhooks". Enter your domain URL and set the content type to JSON. Write down a random secret that you'll later use in your `.env` file. You can reuse the same secret for future webhooks. I'm assuming you already have your own domain picked out that you'll want to use, we will configure it the next few steps.
 
 ![GitHub webhook creation page](/vps/webhook.png)
 _GitHub Webhook settings Page_
 
-## Using Cloudflare for Security
+## Using a Custom Domain (example.com)
 
-It's recommended to use [Cloudflare](https://cloudflare.com) to protect your server's IP address from exposure. With Cloudflare, your server is shielded from direct traffic. Sign up for a free tier, purchase a domain on [Namecheap](https://namecheap.com), and enable free WHOIS privacy.
+It's recommended to use [Cloudflare](https://cloudflare.com) to protect your server's IP address from exposure. With Cloudflare, your server is shielded from direct traffic. Purchase your domain on [Namecheap](https://namecheap.com), enable free WHOIS privacy to keep your name and address private. Now sign up on Cloudflare and add your domain and pick free tier. Cloudflare will tell you which Nameservers to enter into Namecheap Domain Settings under Nameservers -> Custom DNS.
 
 ![Namecheap DNS settings](/vps/namecheapns.png)
 _Namecheap Domain Settings Nameservers_
 
 ## Configuring DNS on Cloudflare
 
-Add A records with @ and \* pointing to your server's IP. Ensure that the orange cloud is enabled.
+Add two A records: @ and \* pointing to your server's IP on Cloudflare. Ensure that the orange cloud is enabled.
 
 ![Cloudflare DNS settings](/vps/cloudflare.png)
 _Cloudflare DNS Records Page_
 
-## SSL/TLS Encryption
+## Security (https://)
 
-Set Cloudflare's SSL/TLS encryption mode to "Full (Strict)" for added security.
+Set Cloudflare's SSL/TLS encryption mode to "Full (Strict)" for added security. It tells cloudflare to always choose a secure connection event when talking to your server, this should be the default.
 
 ![Cloudflare SSL settings](/vps/cloudflaressl.png)
 _Cloudflare SSL Settings Page (Full Strict)_
 
 ## Setting Up Nginx on Your VPS
 
-Install Nginx and Certbot on your VPS:
+Install Nginx (webserver) and Certbot (for https) on your VPS:
 
 ```sh
 sudo apt update
@@ -123,7 +123,7 @@ server {
 }
 ```
 
-Enable the configuration with the following commands:
+Enable the configuration with the following commands, switch up the variables as necessary:
 
 ```sh
 EMAIL=mwit2023@gmail.com
@@ -134,7 +134,7 @@ sudo systemctl restart nginx
 sudo certbot --nginx --agree-tos --no-eff-email --non-interactive -m $EMAIL -d $DOMAIN
 ```
 
-Don't forget to set up a cron job to renew your SSL certificates:
+Set up a cron job to renew your SSL certificates:
 
 ```
 sudo crontab -e
@@ -167,7 +167,7 @@ pm2 install pm2-logrotate
 
 ## Cloning and Running Apps on the VPS
 
-For each app, clone it onto your VPS and start it using PM2. Remember to assign a unique port for each app:
+For each app, clone it onto your VPS and start it using PM2. The webhook script will restart your pm2 app when a HTTP POST comes in from GitHub that we set up earlier. The name of your repo must match the folder. See example deployment below and remember to assign a unique port for each app, and have Nginx config match your desired (sub)domain:
 
 ```sh
 cd $HOME
