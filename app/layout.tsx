@@ -61,7 +61,7 @@ export default function RootLayout({
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                @michael_witk on X (Twitter)
+                                michael_witk on 𝕏 (Twitter)
                             </a>
                         </p>
                     </div>

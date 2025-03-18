@@ -27,7 +27,7 @@ export default function Footer() {
                         href="https://x.com/michael_witk"
                     >
                         {/* <ArrowIcon /> */}
-                        <p className="h-7">@michael_witk on X (Twitter)</p>
+                        <p className="h-7">michael_witk on 𝕏 (Twitter)</p>
                     </a>
                 </li>
             </ul>
