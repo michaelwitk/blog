@@ -4,14 +4,10 @@ publishedAt: '2025-03-13'
 summary: 'A quick guide to hosting Node.js and Next.js apps on a VPS, covering SSH setup, GitHub integration, Cloudflare security, Nginx configuration, and process management with PM2.'
 ---
 
-# How I Host My Webapps: Node.js, Next.js on a VPS
-
 I recommend using [Hetzner](https://www.hetzner.com/) or [DigitalOcean](https://www.digitalocean.com/) for fast setup. This page is hosted on a $4/month VPS (4GB RAM, 2VCPU, 40GB DISK). After renting your VPS, you'll get an IP address to connect via SSH. If you don't have an SSH key on your local computer, follow these steps:
 
 1. Generate an SSH key on your local machine and copy it.
 2. Enter your SSH key when creating the server to enable passwordless login. If you don't know how, the next step will show you how, just on the rented VPS you just created, but you should do it on your own computer once too.
-
-## Connecting to Your VPS
 
 I'm using macOS. Open the Terminal app and connect to your server by replacing "IP" with the IP address you received from your server provider:
 
@@ -38,8 +34,6 @@ Paste it into your [GitHub SSH keys settings](https://github.com/settings/keys).
 ![GitHub SSH key settings](/vps/sshkey.png)
 _GitHub SSH key settings_
 
-## Webhook recipient
-
 Copy my minimal webhook webserver repository onto your VPS:
 
 ```sh
@@ -65,35 +59,25 @@ _GitHub new repository created page_
 
 Use the provided snippet to upload my code to your own GitHub account.
 
-## Setting Up Webhooks on GitHub
-
 After setting up the repository, go to the repository settings, then to "Webhooks". Enter your domain URL and set the content type to JSON. Write down a random secret that you'll later use in your `.env` file. You can reuse the same secret for future webhooks. I'm assuming you already have your own domain picked out that you'll want to use, we will configure it the next few steps.
 
 ![GitHub webhook creation page](/vps/webhook.png)
 _GitHub Webhook settings Page_
-
-## Using a Custom Domain (example.com)
 
 It's recommended to use [Cloudflare](https://cloudflare.com) to protect your server's IP address from exposure. With Cloudflare, your server is shielded from direct traffic. Purchase your domain on [Namecheap](https://namecheap.com), enable free WHOIS privacy to keep your name and address private. Now sign up on Cloudflare and add your domain and pick free tier. Cloudflare will tell you which Nameservers to enter into Namecheap Domain Settings under Nameservers -> Custom DNS.
 
 ![Namecheap DNS settings](/vps/namecheapns.png)
 _Namecheap Domain Settings Nameservers_
 
-## Configuring DNS on Cloudflare
-
 Add two A records: @ and \* pointing to your server's IP on Cloudflare. Ensure that the orange cloud is enabled.
 
 ![Cloudflare DNS settings](/vps/cloudflare.png)
 _Cloudflare DNS Records Page_
 
-## Security (https://)
-
 Set Cloudflare's SSL/TLS encryption mode to "Full (Strict)" for added security. It tells cloudflare to always choose a secure connection event when talking to your server, this should be the default.
 
 ![Cloudflare SSL settings](/vps/cloudflaressl.png)
 _Cloudflare SSL Settings Page (Full Strict)_
-
-## Setting Up Nginx on Your VPS
 
 Install Nginx (webserver) and Certbot (for https) on your VPS:
 
@@ -141,8 +125,6 @@ sudo crontab -e
 0 0,12 * * * certbot renew --quiet
 ```
 
-## Installing Node.js
-
 Install Node.js using NVM (Node Version Manager):
 
 ```sh
@@ -156,16 +138,12 @@ nvm i --lts
 # nvm i 22
 ```
 
-## Setting Up PM2 for Process Management
-
 PM2 helps manage your applications and automatically restarts them if they crash or the server reboots:
 
 ```sh
 npm i -g pm2@5.4
 pm2 install pm2-logrotate
 ```
-
-## Cloning and Running Apps on the VPS
 
 For each app, clone it onto your VPS and start it using PM2. The webhook script will restart your pm2 app when a HTTP POST comes in from GitHub that we set up earlier. The name of your repo must match the folder. See example deployment below and remember to assign a unique port for each app, and have Nginx config match your desired (sub)domain:
 
@@ -187,8 +165,6 @@ PORT=3001 pm2 start ./node_modules/.bin/next -i 2 --log-date-format "YYYY-MM-DD 
 pm2 save
 pm2 startup
 ```
-
-## Monitoring Logs and App Stats
 
 Use the following commands to monitor logs and stats:
 
