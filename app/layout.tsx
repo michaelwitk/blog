@@ -10,13 +10,13 @@ import Script from 'next/script'
 export const metadata: Metadata = {
     metadataBase: new URL(baseUrl),
     title: {
-        default: '@michael_witk Blog',
-        template: '%s | @michael_witk Blog',
+        default: 'michael_witk Blog',
+        template: '%s | michael_witk Blog',
     },
-    description: '@michael_witk Blog',
+    description: 'michael_witk Blog',
     openGraph: {
-        title: '@michael_witk Blog',
-        description: '@michael_witk Blog',
+        title: 'michael_witk Blog',
+        description: 'michael_witk Blog',
         url: baseUrl,
         siteName: 'Blog',
         locale: 'en_US',
