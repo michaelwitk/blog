@@ -155,7 +155,6 @@ cd webhook
 # nano .env
 echo SECRET=1234 > .env
 
-
 # Node.js app (single process)
 NAME=webhook
 pm2 start "PORT=3000 npm run start" --log-date-format "YYYY-MM-DD HH:mm:ss" --name $NAME
