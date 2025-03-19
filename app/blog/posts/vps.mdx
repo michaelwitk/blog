@@ -74,7 +74,7 @@ Add two A records: @ and \* pointing to your server's IP on Cloudflare. Ensure t
 ![Cloudflare DNS settings](/vps/cloudflare.png)
 _Cloudflare DNS Records Page_
 
-Set Cloudflare's SSL/TLS encryption mode to "Full (Strict)" for added security. It tells cloudflare to always choose a secure connection event when talking to your server, this should be the default.
+Set Cloudflare's SSL/TLS encryption mode to "Full (Strict)" for added security. It tells cloudflare to always choose a secure connection even when talking to your server, this should be the default.
 
 ![Cloudflare SSL settings](/vps/cloudflaressl.png)
 _Cloudflare SSL Settings Page (Full Strict)_
@@ -152,7 +152,9 @@ cd $HOME
 git clone https://github.com/michaelwitk/webhook
 cd webhook
 # Create .env file with your secret from GitHub webhook settings
+# nano .env
 echo SECRET=1234 > .env
+
 
 # Node.js app (single process)
 NAME=webhook
